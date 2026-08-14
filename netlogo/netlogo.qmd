@@ -1,0 +1,158 @@
+---
+title: "Lab2 Week 03: [Netlogo Exercise]"
+author: "McKenna Taylor (747408407)"
+date: 14 Aug 2026
+format:
+  html:
+    toc: true
+    code-fold: false
+    embed-resources: true
+  pdf:
+    toc: true
+execute:
+  warning: false
+---
+
+<!--
+============================================================
+ENVSCI 704 lab template (Week 3: agent-based modelling)
+============================================================
+How to use this file:
+
+1. Copy it into your GitHub course repo and rename it, e.g.
+   `lab-03-fire-spread.qmd`.
+2. Fill in the YAML header above (title, your name, student ID).
+3. Work through the tasks below. Delete any sections you do not need.
+4. Render to PDF:
+       quarto render lab-03-topic.qmd --to pdf
+5. Commit and push the .qmd, the rendered .pdf, AND your images/
+   folder. Submit the link to the PDF on Canvas.
+
+Tips:
+- NetLogo code goes in netlogo-fenced code blocks, not Python cells.
+- Write short answers in prose between code blocks and screenshots,
+  not as comments inside code.
+- Give every screenshot a caption so the reader knows what it shows.
+- If you plot in Python, round floats when you print: f"{value:.2f}".
+============================================================
+-->
+
+## How to include screenshots and images (jpg or png)
+
+Your NetLogo results are reported as screenshots, so you will embed external image files in this document.
+
+1. Take a screenshot of the NetLogo world or interface (on macOS press Cmd+Shift+4, on Windows use Snipping Tool).
+2. Save it as a `.png` or `.jpg` file inside an `images/` folder next to this `.qmd` file, with a descriptive name such as `images/fire-density60.png`.
+3. Embed it with Markdown image syntax, and add a caption and a width:
+
+```markdown
+![Final state of the world at density 60](images/fire-density60.png){width=70%}
+```
+
+Because `embed-resources: true` is set in the YAML header, the images are bundled into the rendered HTML file. Remember to commit and push the `images/` folder along with the `.qmd`, otherwise the images will be missing when the file is rendered elsewhere.
+
+## Part A: Build the Model
+
+Percent burned is 94.1. Rip forest. 
+
+Paste your NetLogo code here:
+
+```lisp
+globals [
+  initial-trees
+  burned-trees
+]
+
+to setup
+  clear-all
+  ask patches [
+    if random 100 < density [ set pcolor green ]
+  ]
+  ask patches with [ pxcor = min-pxcor ] [
+    if pcolor = green [ set pcolor red ]
+  ]
+  set initial-trees count patches with [ pcolor = green or pcolor = red ]
+  set burned-trees 0
+  reset-ticks
+end
+
+to go
+  if not any? patches with [ pcolor = red ] [ stop ]
+  ask patches with [ pcolor = red ] [
+    ask neighbors4 with [ pcolor = green ] [
+      set pcolor red
+    ]
+    set pcolor grey
+    set burned-trees burned-trees + 1
+  ]
+  tick
+end
+```
+
+Embed your screenshot of the world after a run:
+
+![Build the model](build the model.png)
+
+## Part B: Find the ciritical density
+
+Record your runs in a Markdown table:
+
+| Parameter value | Run 1 | Run 2 | Run 3 | Run 4|Run 5 | Run 6 | Run 7 | Run 8 |Run 9 | Run 10 | Mean  |
+|----------------:|------:|------:|------:|-----:|------:|------:|------:|-----:|------:|------:|------:|
+|         40      |  6.5  |  14.3 |  6.6  | 15.7 |  12.1 | 19.6  |  9.1  |13.3  | 20.6  |  22   | 13.98 |
+|         50      |  43.2 |  31.6 |  27.1 | 36.4 | 13.6  |  22.4 |   40  |21.3  |  32.4 |  38.8 | 30.68 |
+|         55      |  64.4 |  59.3 |  86.8 | 18.9 |  46.1 | 63.6  | 73.6  | 67.7 |  52.1 |  48.9 | 58.14 |
+|         58      |  61.4 |  84.2 |  91.2 | 77.6 |  77.6 | 71.2  | 83.7  | 77.4 | 91.1  | 93.1  | 80.85 |
+|         59      |  92.5 |  92.1 |  83.9 | 91.4 |  81.4 |  93.8 |  90.7 | 80.7 |  84.3 |   83  | 87.38 |
+|         60      |  38.2 | 54.8  |  91.4 | 71.7 |  81.7 | 89.8  | 91.6  | 91.3 | 90.1  |  90.6 | 70.12 |
+|         62      |  82.3 |  92.8 |  96.3 | 92.6 |  95.4 | 90.2  | 93.8  |92.5  |   95  |  96.7 | 92.76 |
+|         65      |  89.2 | 94.8  |   99  | 97.7 |  97   | 93.6  |  91   | 95.4 |   96  | 93.4  | 94.71 |
+|         70      |  99.7 | 97.3  |  97.1 | 99.6 |  97.3 |  98.7 | 99.2  | 98   |  98.1 |  98.3 | 98.33 |
+|         80      |   100 |  99.8 | 99.9  | 99.9 |  99.4 |  100  | 99.9  |  100 |  99.7 |  99.7 | 99.83 |
+
+If you plot your results in Python, use a code cell:
+
+```{python}
+#| eval: false
+import matplotlib.pyplot as plt
+
+density = [40, 50, 55, 58, 59, 60, 62, 65, 70, 80]
+mean_burned = [13.98, 30.68, 58.14, 80.85, 87.38, 70.12, 92.76, 94.71, 98.33, 99.83]
+
+fig, ax = plt.subplots(figsize=(6,4))
+ax.plot(density, mean_burned, marker='o')
+ax.set_xlabel("Density")
+ax.set_ylabel("Mean Burned")
+ax.set_title("Critical Density Analysis")
+plt.show()
+```
+
+Estimate the critical density from your results and explain how you determined it. I estimate the critical density to be around 58-59. This is based on the observation that at densities below 58, the mean percentage of burned trees is significantly lower, while at densities of 59 and above, the mean percentage of burned trees jumps to over 80%, indicating a threshold where the fire spreads more effectively through the forest.
+How much variation fro runs at 40 and 80? At 80 there is very low variation (99.7-100). At 40 there is a decent amount of variation (5 to 22). Variation is largest enar the threshold becasue the small random changes in density can have a larger effect on the outcome of the fire. At low densities fire can die quickly if there is nothing to spread to. At large tree densisites there is a lot of fuel for the fire to jump around to. 
+
+## Part C: Summary ODD documentation
+
+Paste the modified NetLogo code and embed a screenshot of the extended model:
+
+The overall purpose of our model is <to address at what forest ensity the criticl density analysis is. This density analysis allows the assessment of how forest fires can spread.> Specifically, we are addressing the following questions: <e.g. how does the burned area respond to tree density?> To consider our model realistic enough for its purpose, we use the following patterns: <real world patterns of stocastsicity in fire spread, and the effect of tree density on fire propagation.>
+
+The model includes the following entities: <trees, fires, ticks. The size of the word is 100x100 patches, with each patch representing a tree or empty space. The fire starts at the left edge of the world and spreads to adjacent trees. The model runs until there are no more burning trees.> The state variables characterising these entities are listed in Table 1. The spatial and temporal resolution and extent are <world size in patches 100x100 (i think), what one patch and one tick represent - represents one tick of fire spread, and when a run ends - when a run ends the fire is out as it used all the fuel or ran into a burned area and thus had no trees to spread to.>
+
+The most important processes of the model, which are repeated every time step, are <is stocasticity in fire spread, tree placement, and running multiple times. This allows the understanding of ignition to fellow trees and burn out patterns.>
+
+The most important design concepts of the model are <e.g. emergence: the critical density threshold emerges from purely local spread rules; stochasticity: random tree placement.>
+
+The model is initialized with <initial conditions: how trees are placed, where the fire starts, and the slider settings used.>
+
+
+
+
+## Checklist before you push
+
+- [ ] Every task has code or a screenshot **and** a short answer
+- [ ] Every screenshot has a caption, and every plot has axis labels and a title
+- [ ] The `images/` folder is committed and pushed together with the `.qmd`
+- [ ] Your name and student ID are in the YAML header
+- [ ] The file renders cleanly (no missing images or red error boxes in the HTML output)
+- [ ] Filename is `lab-03-topic.qmd`, not `Untitled.qmd`
+
