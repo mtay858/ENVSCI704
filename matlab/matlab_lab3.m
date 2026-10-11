@@ -1,5 +1,7 @@
 
 
+Below is the code used in Metlab. 
+
 %clear all the data in the Workspace and Command Window
 %load in data
 
@@ -19,7 +21,7 @@ time1= datenum(2015,1,15,13,0,0); %creates a metlab time variable Time1
 %figure(1)
 %plot(data1(:,1),riverDischarge1, 'r') %plot time, variable and color it red
 %title('Kaeamu Floodgates Timeseries') %plot(x,y,options)
-%ylabel('River DIscharge Units') %'r' = red, 'b'=blue, 'k'=black
+%ylabel('River Discharge Units') %'r' = red, 'b'=blue, 'k'=black
 %xlabel('Year') %
 %datetick('x','yyyy') %
 
